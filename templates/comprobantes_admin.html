@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="ThemeBucket">
+    <link rel="shortcut icon" href="images/favicon.png">
+
+    <title>Comprobantes Electrónicos</title>
+
+    <!--Core CSS -->
+    <link href="{{ url_for('static', filename='bs3/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href= "{{ url_for('static', filename='css/bootstrap-reset.css') }}" rel="stylesheet">
+    <link href= "{{ url_for('static', filename='font-awesome/css/font-awesome.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='js/jquery-ui/jquery-ui-1.10.1.custom.min.css') }}" rel="stylesheet">
+    
+    <link href="{{ url_for('static', filename='css/bootstrap-reset.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='js/jvector-map/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/clndr.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='js/css3clock/css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='js/morris-chart/morris.css') }}" rel="stylesheet">
+    
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style-responsive.css') }}" rel="stylesheet" />
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]>
+    <script src="js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<div class="top-nav clearfix">
+    <!--search & user info start-->
+    <ul class="nav pull-right top-menu">
+        <!-- user login dropdown start-->
+        <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                {% with name = name %}
+                  {% if name %}
+                    {% for n in name %}
+                        <span class="username">{{n}}</span>
+                  {% endfor %}
+               {% endif %}
+              {% endwith %}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu extended logout">
+                <li><a href="#"><i class=" fa fa-suitcase"></i>Profile</a></li>
+                <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
+                <li><a href="index.html"><i class="fa fa-key"></i> Log Out</a></li>
+            </ul>
+        </li>
+        <!-- user login dropdown end -->
+    </ul>
+    <!--search & user info end-->
+</div>
+
+<div class="container">
+  <form action="/search_admin" method="post">
+    <h4>Búsqueda de comprobantes por:</h4>
+    <label for="tipo_cbt">Tipo de Documento</label>
+    <select id="tipo_cbt" name="tipo_cbt">
+      <option value=""> </option>
+      <option value="retencion">Comprobante de Retención</option>
+      <option value="factura">Factura</option>
+      <option value="guia">Guía de Remisión</option>
+      <option value="debito">Nota de Débito</option>
+      <option value="credito">Nota de Crédito</option>
+    </select>
+        
+    <label for="auth">Número de Autorización</label>
+    <input type="text" id="auth" name="auth">
+    
+    <button type="submit" class="btn btn-primary">Buscar</button>
+  </form> 
+     
+  </form>
+</div>
+  
+<div class="container">
+      <h2>Comprobantes</h2>
+      <p>Puede revisar todos los comprobantes electrónicos que haya emitido.</p>            
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nro.</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Número de comprobante</th>
+            <th>Número de Autorizacion</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% with facturas = invoices %}
+          {% if facturas %}
+            {% for factura in facturas %}
+             <tr class="success">
+                <td>1 </td>
+                {% if factura[3] == 'out_invoice' %}
+                    <td>Factura</td>
+                {% endif %}
+                {% if factura[3] == 'out_credit_note' %}
+                    <td>Nota de Credito</td>
+                {% endif %}
+                {% if factura[3] == 'out_debit_note' %}
+                    <td>Nota de debito</td>
+                {% endif %}
+                {% if factura[3] == 'out_shipment'%}
+                    <td>Guia de remision</td>
+                {% endif %}
+                {% if factura[3] == 'in_withholding'%}
+                    <td>Comprobante de Retencion</td>
+                {% endif %}
+                <td>{{factura[4]}}</td>
+                <td>{{factura[6]}}</td>
+                <td>{{factura[7]}}</td>
+                <td>{{factura[8]}}</td>
+                <td><a href={{factura[9]}}>XML <input name="pdf" type="image" style="border: 0; margin: 0 0 -5px 5px;" heigth = 15 width = 15 src="{{ url_for('static', filename='img/pdf.png') }}" alt="xml" title="xml" /> </a> <a href="{{factura[10]}}">PDF  <input name="pdf" type="image" style="border: 0; margin: 0 0 -5px 5px;" heigth = 15 width = 15 src="{{ url_for('static', filename='img/pdf.png') }}" alt="xml" title="xml" /></a></td> 
+              </tr>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        </tbody>
+      </table>
+    </div>
+    
+<div class="container">     
+  <form action="/logout" method="post">     
+    <button type="submit" class="btn btn-primary">Salir</button>
+  </form>
+</div>
+
+</body>
+</html>
+
+
+
+
