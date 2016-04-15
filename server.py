@@ -41,19 +41,33 @@ def secret():
 def login():
     cont = 0
     if request.method == "POST" and "user" and 'password' in request.form:
+        cur.execute("SELECT * FROM information_schema.sequences")
+        sequences = cur.fetchall()
+        s_true_u = 0
+        s_true_f = 0
+        for s in sequences:
+            print "s2", s[2]
+            if s[2] == 'user_id_seq':
+                s_true_u = 1
+            elif s[2] == 'factura_id_seq':
+                s_true_f = 1
+            else:
+                pass
+        if s_true_u == 0:      
+            cur.execute("CREATE SEQUENCE user_id_seq;")
+        if s_true_f == 0:
+            cur.execute("CREATE SEQUENCE factura_id_seq;") 
+        
+        cur.execute("CREATE TABLE IF NOT EXISTS usuario_web (id integer DEFAULT  NEXTVAL('user_id_seq') NOT  NULL, username varchar, password varchar, cedula varchar, correo varchar, nombre varchar, token varchar, fecha varchar, primary key (id))")
+        cur.execute("CREATE TABLE IF NOT EXISTS factura_web (id integer DEFAULT  NEXTVAL('factura_id_seq') NOT  NULL, cedula varchar, ruc varchar, tipo varchar, fecha varchar, empresa varchar, numero_comprobante varchar, numero_autorizacion varchar, total varchar, path_xml varchar, path_pdf varchar, primary key (numero_autorizacion))")
+        conn.commit()
+    
         session['user'] = request.form['user']
         user = request.form["user"]
         password = request.form["password"]
         
         cur.execute("SELECT cedula FROM usuario_web WHERE username = %s AND password =%s", (user,password))
         result = cur.fetchone()
-        """
-        session['user'] = request.form['user']
-        user = request.form["user"]
-        password = request.form["password"]
-        u = User.query.filter_by(user=user, password=password).first()
-        cedula = u.cedula
-        """
         cur.execute("SELECT empresa FROM factura_web")
         empresas = cur.fetchall()
         empresa = []
